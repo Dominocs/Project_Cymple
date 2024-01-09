@@ -1,0 +1,1 @@
+软件可直接使用VSCODE编译并上传，依赖于PlatformIO

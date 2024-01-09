@@ -8,8 +8,8 @@
         {
             "name": "PlatformIO",
             "includePath": [
-                "E:/Project_Cymple/cympleFace_Esp/include",
-                "E:/Project_Cymple/cympleFace_Esp/src",
+                "E:/Project_Cymple/Project_Cymple_output/eyeTracker/software/include",
+                "E:/Project_Cymple/Project_Cymple_output/eyeTracker/software/src",
                 "C:/Users/Administrator/.platformio/packages/framework-arduinoespressif32/libraries/AsyncUDP/src",
                 "C:/Users/Administrator/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src",
                 "C:/Users/Administrator/.platformio/packages/framework-arduinoespressif32/libraries/EEPROM/src",
@@ -238,8 +238,8 @@
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
-                    "E:/Project_Cymple/cympleFace_Esp/include",
-                    "E:/Project_Cymple/cympleFace_Esp/src",
+                    "E:/Project_Cymple/Project_Cymple_output/eyeTracker/software/include",
+                    "E:/Project_Cymple/Project_Cymple_output/eyeTracker/software/src",
                     "C:/Users/Administrator/.platformio/packages/framework-arduinoespressif32/libraries/AsyncUDP/src",
                     "C:/Users/Administrator/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src",
                     "C:/Users/Administrator/.platformio/packages/framework-arduinoespressif32/libraries/EEPROM/src",

@@ -5,10 +5,10 @@ QQ群：813927043
 
 初次食用教程：
 打开所需功能
-![image]https://github.com/Dominocs/Project_Cymple/blob/main/tutorial/step1.png
+![image](https://github.com/Dominocs/Project_Cymple/blob/main/tutorial/step1.png)
 
 设备网络配置
-![image]https://github.com/Dominocs/Project_Cymple/blob/main/tutorial/step2.png
+![image](https://github.com/Dominocs/Project_Cymple/blob/main/tutorial/step2.png)
 
 EyeTracker配置：
-![image]https://github.com/Dominocs/Project_Cymple/blob/main/tutorial/step3.png
+![image](https://github.com/Dominocs/Project_Cymple/blob/main/tutorial/step3.png)

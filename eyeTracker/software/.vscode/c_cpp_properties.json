@@ -467,7 +467,7 @@
                 ]
             },
             "defines": [
-                "PLATFORMIO=60111",
+                "PLATFORMIO=60112",
                 "ARDUINO_ESP32_DEV",
                 "BOARD_HAS_PSRAM",
                 "HAVE_CONFIG_H",

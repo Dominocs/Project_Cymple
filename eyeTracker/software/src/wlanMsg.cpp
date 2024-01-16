@@ -1,6 +1,5 @@
 #include <AsyncUDP.h>
 #include "common.h"
-#include "drv/led.h"
 #include "drv/eeprom.h"
 #include "drv/network.h"
 #include "esp32cam.h"
@@ -23,7 +22,6 @@ static void onPacketCallBack(AsyncUDPPacket packet){
             heartBeatTimer = millis();
             bHeartbeatTimeout = false;
             peerAddr = packet.remoteIP();
-            pledObj->ledMode(LED_MODE_BLINK, 1000, 2000);
             break;
         case MSG_POSITION_CFG_E:{
             if(msgLen == sizeof(MSG_WLAN_POSIOTN_CONFIG_S)){
@@ -51,9 +49,9 @@ wlanMsgClass::wlanMsgClass(){
     peerAddr = INADDR_NONE;
     WiFi.mode(WIFI_STA);
     WiFi.persistent(false);
-    if(ESP_OK != esp_wifi_set_max_tx_power(WIFI_MAX_TX_POWER)){
-        Serial.println("Failed to config wifi max tx power.");
-    }
+    // if(ESP_OK != esp_wifi_set_max_tx_power(WIFI_MAX_TX_POWER)){
+    //     Serial.println("Failed to config wifi max tx power.");
+    // }
     while (!udpClient.listen(CYMPLEFACE_CAM_PORT)) //等待udp监听设置成功
     {
     }
@@ -104,7 +102,6 @@ int wlanMsgClass::runFrame(unsigned long currentT){
     deltaT = abs(deltaT);
     if((!bHeartbeatTimeout) && (deltaT > WLAN_HEARTBEAT_TIMEOUT)){
         bHeartbeatTimeout = true;
-        pledObj->ledMode(LED_MODE_ALWAYS_ON, 0, 0); 
     }
     if(bHeartbeatTimeout){
         if(!WiFi.isConnected()){

@@ -28,5 +28,9 @@ void loop() {
     return;
   }
   currentT = millis() - currentT;
-  delay(currentT > 10?0:10 - currentT);
+  if((ucFlag2 & FLAG2_FAST_MODE) != 0){
+    delay(currentT > 10?0:10 - currentT);
+  }else{
+    delay(currentT > 40?0:40 - currentT);
+  }
 }

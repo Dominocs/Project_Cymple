@@ -5,7 +5,8 @@
 enum{
     MSG_SERVER_HEARTBEAT_E,
     MSG_IMAGE_E,
-    MSG_POSITION_CFG_E
+    MSG_POSITION_CFG_E,
+    MSG_REFRESH_RATE_CFT_E,
 };
 
 /* 标定参数结构体，发送给tracker */
@@ -43,4 +44,5 @@ public:
 };
 
 extern wlanMsgClass *pwlanMsgObj;
+extern uint8_t ucFlag2;
 #endif

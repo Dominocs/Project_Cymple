@@ -10,6 +10,7 @@ wlanMsgClass *pwlanMsgObj = NULL;
 IPAddress peerAddr;
 bool bHeartbeatTimeout = true;
 unsigned long heartBeatTimer = 0;
+uint8_t ucFlag2;
 
 static void onPacketCallBack(AsyncUDPPacket packet){
     if(!packet.available()){
@@ -32,6 +33,18 @@ static void onPacketCallBack(AsyncUDPPacket packet){
                 Serial.printf("Mismatch: sizeof(MSG_WLAN_PARACONFIG_S):%u, msg len:%d\n", sizeof(MSG_WLAN_POSIOTN_CONFIG_S), msgLen);
             }
             break;
+        case MSG_REFRESH_RATE_CFT_E:
+            uint8_t flag;
+            eepromApi::read(&flag, OFFSET(EEPROM_DATA_S, ucFlags2), sizeof(flag));
+            if((flag & FLAG2_FAST_MODE) == 0){
+                flag |= FLAG2_FAST_MODE;
+            }else{
+                flag &= (~FLAG2_FAST_MODE);
+            }
+            ucFlag2 = flag;
+            eepromApi::write(&flag, OFFSET(EEPROM_DATA_S, ucFlags2), sizeof(flag));
+            Serial.printf("Switch fresh rate: flag2:%d\n", ucFlag2);
+            break;
         }
         default:
             Serial.printf("Invalid msg type%u, msg len:%d\n", pstMsgHdr->uiType, msgLen);
@@ -44,6 +57,7 @@ wlanMsgClass::wlanMsgClass(){
     memset(acPassword, 0 , sizeof(acPassword));
     eepromApi::read(acSSID, OFFSET(EEPROM_DATA_S, acSSID), sizeof(acSSID));
     eepromApi::read(acPassword, OFFSET(EEPROM_DATA_S, acPassword), sizeof(acPassword));
+    eepromApi::read(&ucFlag2, OFFSET(EEPROM_DATA_S, ucFlags2), sizeof(ucFlag2));
     acSSID[SSID_LENGTH - 1] = '\0';
     acPassword[WIFI_PASSWORD_LENGTH - 1] = '\0';
     peerAddr = INADDR_NONE;

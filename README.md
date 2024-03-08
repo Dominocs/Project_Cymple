@@ -6,7 +6,9 @@ QQ群：813927043![image](https://github.com/Dominocs/Project_Cymple/blob/main/t
 
 视频介绍: 【【DIY】手把手教你做一个眼部追踪仪】 https://www.bilibili.com/video/BV1Ba4y117SQ/?share_source=copy_web&vd_source=b2a76ab837bbad2cdd215460ef24e48b
 
-眼追制作教程：【DIY】不到70元打造一个泛用眼部追踪仪，手把手教你做！ https://www.bilibili.com/video/BV1Ba4y117SQ/
+眼部追踪制作教程：【DIY】不到70元打造一个泛用眼部追踪仪，手把手教你做！ https://www.bilibili.com/video/BV1Ba4y117SQ/
+
+面捕教程： 【【DIY】cymple项目更新：不到70元制作一个vrchat面捕设备！】 https://www.bilibili.com/video/BV1G2421N7JD/
 
 在线刷写固件:https://hiahia1234.github.io/ 由hiahia1234提供
 

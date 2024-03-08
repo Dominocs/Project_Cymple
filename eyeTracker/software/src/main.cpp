@@ -28,5 +28,5 @@ void loop() {
     return;
   }
   currentT = millis() - currentT;
-  delay(currentT > 40?0:40 - currentT);
+  delay(currentT > 10?0:10 - currentT);
 }

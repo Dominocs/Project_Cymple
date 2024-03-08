@@ -25,7 +25,7 @@ cameraClass::cameraClass(){
         Serial.println("Camera succeed to init");
         sensor_t * s = esp_camera_sensor_get();
         s->set_brightness(s, 0);     // -2 to 2
-        s->set_contrast(s, 2);       // -2 to 2
+        s->set_contrast(s, 0);       // -2 to 2
         s->set_saturation(s, 0);     // -2 to 2
         s->set_special_effect(s, 0); // 0 to 6 (0 - No Effect, 1 - Negative, 2 - Grayscale, 3 - Red Tint, 4 - Green Tint, 5 - Blue Tint, 6 - Sepia)
         s->set_whitebal(s, 1);       // 0 = disable , 1 = enable
@@ -34,7 +34,7 @@ cameraClass::cameraClass(){
         s->set_exposure_ctrl(s, 1);  // 0 = disable , 1 = enable
         s->set_aec2(s, 0);           // 0 = disable , 1 = enable
         s->set_ae_level(s, 0);       // -2 to 2
-        s->set_aec_value(s, 300);    // 0 to 1200
+        s->set_aec_value(s, 400);    // 0 to 1200
         s->set_gain_ctrl(s, 1);      // 0 = disable , 1 = enable
         s->set_agc_gain(s, 0);       // 0 to 30
         s->set_gainceiling(s, (gainceiling_t)0);  // 0 to 6

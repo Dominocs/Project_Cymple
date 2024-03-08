@@ -4,6 +4,8 @@
 
 QQ群：813927043![image](https://github.com/Dominocs/Project_Cymple/blob/main/tutorial/qqgroup.png)
 
+Discord：https://discord.gg/3epvRA2V
+
 视频介绍: 【【DIY】手把手教你做一个眼部追踪仪】 https://www.bilibili.com/video/BV1Ba4y117SQ/?share_source=copy_web&vd_source=b2a76ab837bbad2cdd215460ef24e48b
 
 眼部追踪制作教程：【DIY】不到70元打造一个泛用眼部追踪仪，手把手教你做！ https://www.bilibili.com/video/BV1Ba4y117SQ/

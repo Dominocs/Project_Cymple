@@ -1,25 +1,25 @@
 # Project_Cymple
-低成本，可diy，开源VR配件，适配VRChat，更多功能待更新。
-点个Star以便随时获得最新更新进展，有Bug可以通过Github或直接在群内反馈。
 
-QQ群：813927043![image](https://github.com/Dominocs/Project_Cymple/blob/main/tutorial/qqgroup.png)
+Low-cost, DIY, open-source VR accessories, compatible with VRChat, more functions to be updated. 
+Click Star to get the latest update progress at any time, and report bugs through Github.
 
 Discord：https://discord.gg/3epvRA2V
 
-视频介绍: 【【DIY】手把手教你做一个眼部追踪仪】 https://www.bilibili.com/video/BV1Ba4y117SQ/?share_source=copy_web&vd_source=b2a76ab837bbad2cdd215460ef24e48b
+Video introduction: 
+【DIY】cymple eyetracker | Low-cost, open-source eye tracking devices https://youtu.be/nN_c1wu9-L0?si=0wT6pQjnQvis6rJY
 
-眼部追踪制作教程：【DIY】不到70元打造一个泛用眼部追踪仪，手把手教你做！ https://www.bilibili.com/video/BV1Ba4y117SQ/
+【【DIY】cymple eyetracker | Low-cost, open-source eye tracking devices】 https://youtu.be/qtgVFrBSm8k?si=WIZV_WqJEWEm52us
 
-面捕教程： 【【DIY】cymple项目更新：不到70元制作一个vrchat面捕设备！】 https://www.bilibili.com/video/BV1G2421N7JD/
+Face Capture Tutorial： 【【DIY】cymple facial-trakcer | Low-cost, open-source facial tracker】 https://youtu.be/_oMVrU6RA2o?si=6fq_rdO0Y_tVVUrG
 
-在线刷写固件:https://hiahia1234.github.io/ 由hiahia1234提供
+Flash firmware online tool:https://hiahia1234.github.io/ provided by hiahia1234
 
-初次食用教程：
-打开所需功能
+Tutorial：
+Open the desired function
 ![image](https://github.com/Dominocs/Project_Cymple/blob/main/tutorial/step1.png)
 
-设备网络配置
+Device network configuration
 ![image](https://github.com/Dominocs/Project_Cymple/blob/main/tutorial/step2.png)
 
-EyeTracker配置：
+EyeTracker configuration：
 ![image](https://github.com/Dominocs/Project_Cymple/blob/main/tutorial/step3.png)

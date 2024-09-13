@@ -7,6 +7,8 @@ enum{
     MSG_IMAGE_E,
     MSG_POSITION_CFG_E,
     MSG_REFRESH_RATE_CFT_E,
+    MSG_CONFIG_WIFI_E,
+    MSG_MAX_E,
 };
 
 /* 标定参数结构体，发送给tracker */
@@ -27,20 +29,29 @@ typedef struct{
     uint8_t ucPosition;
 }MSG_WLAN_POSIOTN_CONFIG_S;
 
+typedef struct{
+    TLV_S tlv;
+    char SSID[SSID_LENGTH];
+    char password[WIFI_PASSWORD_LENGTH];
+}MSG_WLAN_WIFI_CONFIG_S;
 
 class wlanMsgClass{
 private:
     char acSSID[SSID_LENGTH];
     char acPassword[WIFI_PASSWORD_LENGTH];
     uint32_t uiTxBufferSize = 0;
-    AsyncUDP udpClient; 
+    AsyncUDP udpClient;
+    bool isConnected = false;
+    
 public:
+    uint8_t tryConCount = 0;
     wlanMsgClass();
     void connect(const char *SSID, const char *password);
     void connect();
     void send(uint8_t *data, size_t len, IPAddress ip, uint16_t port);
     void send(uint8_t *data, size_t len);
     int runFrame(unsigned long currentT);
+    void APMode();
 };
 
 extern wlanMsgClass *pwlanMsgObj;

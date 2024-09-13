@@ -11,7 +11,7 @@ IPAddress peerAddr;
 bool bHeartbeatTimeout = true;
 unsigned long heartBeatTimer = 0;
 uint8_t ucFlag2;
-
+#define AP_NAME "Cymple_Face"
 static void onPacketCallBack(AsyncUDPPacket packet){
     if(!packet.available()){
         return;
@@ -46,6 +46,20 @@ static void onPacketCallBack(AsyncUDPPacket packet){
             Serial.printf("Switch fresh rate: flag2:%d\n", ucFlag2);
             break;
         }
+        case MSG_CONFIG_WIFI_E:{
+            if(msgLen != sizeof(MSG_WLAN_WIFI_CONFIG_S)){
+                Serial.printf("Sizeof MSG_WLAN_WIFI_CONFIG_S dismatch: rcv: %u, local %u", msgLen, sizeof(MSG_WLAN_WIFI_CONFIG_S));
+            }else{
+                MSG_WLAN_WIFI_CONFIG_S *tmp = (MSG_WLAN_WIFI_CONFIG_S *)pstMsgHdr;
+                tmp->SSID[SSID_LENGTH - 1] = '\0';
+                tmp->password[WIFI_PASSWORD_LENGTH - 1] = '\0';
+                WiFi.mode(WIFI_STA);
+                WiFi.persistent(false);
+                pwlanMsgObj->tryConCount = 0;
+                pwlanMsgObj->connect(tmp->SSID, tmp->password);
+            }
+        }
+            
         default:
             Serial.printf("Invalid msg type%u, msg len:%d\n", pstMsgHdr->uiType, msgLen);
             break;
@@ -94,9 +108,17 @@ void wlanMsgClass::connect(const char *SSID, const char *password){
         networkApi::connect(acSSID, acPassword);
     }
 }
+
+
 void wlanMsgClass::connect(){
     Serial.printf("Connecting to %s\n", acSSID);
     networkApi::connect(acSSID, acPassword);
+}
+
+void wlanMsgClass::APMode(){
+    WiFi.mode(WIFI_AP);
+    WiFi.persistent(false);
+    WiFi.softAP(AP_NAME);
 }
 
 void wlanMsgClass::send(uint8_t *data, size_t len, IPAddress ip, uint16_t port){
@@ -112,6 +134,14 @@ void wlanMsgClass::send(uint8_t *data, size_t len){
 }
 
 int wlanMsgClass::runFrame(unsigned long currentT){
+    if(tryConCount > 2){
+        if(3 == tryConCount){
+            Serial.println("Wating to config WIFI");
+            APMode();
+            tryConCount++;
+        }
+        return 1;
+    }
     long long deltaT = (long long)currentT - heartBeatTimer;
     deltaT = abs(deltaT);
     if((!bHeartbeatTimeout) && (deltaT > WLAN_HEARTBEAT_TIMEOUT)){
@@ -120,6 +150,7 @@ int wlanMsgClass::runFrame(unsigned long currentT){
     if(bHeartbeatTimeout){
         if(!WiFi.isConnected()){
             Serial.println("Wlan disconnected");
+            tryConCount++;
             connect();
             delay(3000);
             return 1;

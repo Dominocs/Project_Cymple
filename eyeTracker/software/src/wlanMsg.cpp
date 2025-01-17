@@ -5,6 +5,8 @@
 #include "esp32cam.h"
 #include "wlanMsg.h"
 #include <esp_wifi.h>
+#include "wifiUser.h"
+
 #define WIFI_MAX_TX_POWER 80
 wlanMsgClass *pwlanMsgObj = NULL;
 IPAddress peerAddr;
@@ -119,6 +121,8 @@ void wlanMsgClass::APMode(){
     WiFi.mode(WIFI_AP);
     WiFi.persistent(false);
     WiFi.softAP(AP_NAME);
+    WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));   //设置AP热点IP和子网掩码
+    wifiConfig();
 }
 
 void wlanMsgClass::send(uint8_t *data, size_t len, IPAddress ip, uint16_t port){
@@ -140,6 +144,8 @@ int wlanMsgClass::runFrame(unsigned long currentT){
             APMode();
             tryConCount++;
         }
+        checkDNS_HTTP();                  //检测客户端DNS&HTTP请求，也就是检查配网页面那部分
+        delay(30);
         return 1;
     }
     long long deltaT = (long long)currentT - heartBeatTimer;

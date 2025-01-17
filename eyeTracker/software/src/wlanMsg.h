@@ -53,7 +53,7 @@ public:
     int runFrame(unsigned long currentT);
     void APMode();
 };
-
+static IPAddress apIP(192, 168, 4, 1);            //设置AP的IP地址
 extern wlanMsgClass *pwlanMsgObj;
 extern uint8_t ucFlag2;
 #endif

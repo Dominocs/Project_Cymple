@@ -35,18 +35,18 @@ static void onPacketCallBack(AsyncUDPPacket packet){
                 Serial.printf("Mismatch: sizeof(MSG_WLAN_PARACONFIG_S):%u, msg len:%d\n", sizeof(MSG_WLAN_POSIOTN_CONFIG_S), msgLen);
             }
             break;
-        case MSG_REFRESH_RATE_CFT_E:
-            uint8_t flag;
-            eepromApi::read(&flag, OFFSET(EEPROM_DATA_S, ucFlags2), sizeof(flag));
-            if((flag & FLAG2_FAST_MODE) == 0){
-                flag |= FLAG2_FAST_MODE;
-            }else{
-                flag &= (~FLAG2_FAST_MODE);
-            }
-            ucFlag2 = flag;
-            eepromApi::write(&flag, OFFSET(EEPROM_DATA_S, ucFlags2), sizeof(flag));
-            Serial.printf("Switch fresh rate: flag2:%d\n", ucFlag2);
-            break;
+        // case MSG_REFRESH_RATE_CFT_E:
+        //     uint8_t flag;
+        //     eepromApi::read(&flag, OFFSET(EEPROM_DATA_S, ucFlags2), sizeof(flag));
+        //     if((flag & FLAG2_FAST_MODE) == 0){
+        //         flag |= FLAG2_FAST_MODE;
+        //     }else{
+        //         flag &= (~FLAG2_FAST_MODE);
+        //     }
+        //     ucFlag2 = flag;
+        //     eepromApi::write(&flag, OFFSET(EEPROM_DATA_S, ucFlags2), sizeof(flag));
+        //     Serial.printf("Switch fresh rate: flag2:%d\n", ucFlag2);
+        //     break;
         }
         case MSG_CONFIG_WIFI_E:{
             if(msgLen != sizeof(MSG_WLAN_WIFI_CONFIG_S)){

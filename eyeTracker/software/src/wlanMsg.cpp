@@ -12,7 +12,6 @@ wlanMsgClass *pwlanMsgObj = NULL;
 IPAddress peerAddr;
 bool bHeartbeatTimeout = true;
 unsigned long heartBeatTimer = 0;
-uint8_t ucFlag2;
 #define AP_NAME "Cymple_Face"
 static void onPacketCallBack(AsyncUDPPacket packet){
     if(!packet.available()){
@@ -73,7 +72,6 @@ wlanMsgClass::wlanMsgClass(){
     memset(acPassword, 0 , sizeof(acPassword));
     eepromApi::read(acSSID, OFFSET(EEPROM_DATA_S, acSSID), sizeof(acSSID));
     eepromApi::read(acPassword, OFFSET(EEPROM_DATA_S, acPassword), sizeof(acPassword));
-    eepromApi::read(&ucFlag2, OFFSET(EEPROM_DATA_S, ucFlags2), sizeof(ucFlag2));
     acSSID[SSID_LENGTH - 1] = '\0';
     acPassword[WIFI_PASSWORD_LENGTH - 1] = '\0';
     peerAddr = INADDR_NONE;

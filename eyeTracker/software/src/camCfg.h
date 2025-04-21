@@ -26,7 +26,7 @@ constexpr camera_config_t camconfig{
   .ledc_channel = LEDC_CHANNEL_0,
 
   .pixel_format = PIXFORMAT_JPEG, //YUV422,GRAYSCALE,RGB565,JPEG
-  .frame_size = FRAMESIZE_QVGA,    //QQVGA-UXGA, For ESP32, do not use sizes above QVGA when not JPEG. The performance of the ESP32-S series has improved a lot, but JPEG mode always gives better frame rates.
+  .frame_size = FRAMESIZE_CIF,    //QQVGA-UXGA, For ESP32, do not use sizes above QVGA when not JPEG. The performance of the ESP32-S series has improved a lot, but JPEG mode always gives better frame rates.
 
   .jpeg_quality = 5, //0-63, for OV series camera sensors, lower number means higher quality(图片过大可能会导致堆栈溢出)
   .fb_count = 2,       //When jpeg mode is used, if fb_count more than one, the driver will work in continuous mode.

@@ -9,7 +9,8 @@
 
 #define WIFI_MAX_TX_POWER 80
 wlanMsgClass *pwlanMsgObj = NULL;
-IPAddress peerAddr;
+IPAddress brocastAddr;
+IPAddress unicastAddr;
 bool bHeartbeatTimeout = true;
 unsigned long heartBeatTimer = 0;
 #define AP_NAME "Cymple_Face"
@@ -23,7 +24,12 @@ static void onPacketCallBack(AsyncUDPPacket packet){
         case MSG_SERVER_HEARTBEAT_E:
             heartBeatTimer = millis();
             bHeartbeatTimeout = false;
-            peerAddr = packet.remoteIP();
+            brocastAddr = packet.remoteIP();
+            break;
+        case MSG_SERVER_UNICAST_HEARTBEAT_E:
+            heartBeatTimer = millis();
+            bHeartbeatTimeout = false;
+            unicastAddr = packet.remoteIP();
             break;
         case MSG_POSITION_CFG_E:{
             if(msgLen == sizeof(MSG_WLAN_POSIOTN_CONFIG_S)){
@@ -74,7 +80,7 @@ wlanMsgClass::wlanMsgClass(){
     eepromApi::read(acPassword, OFFSET(EEPROM_DATA_S, acPassword), sizeof(acPassword));
     acSSID[SSID_LENGTH - 1] = '\0';
     acPassword[WIFI_PASSWORD_LENGTH - 1] = '\0';
-    peerAddr = INADDR_NONE;
+    unicastAddr = INADDR_NONE;
     WiFi.mode(WIFI_STA);
     WiFi.persistent(false);
     // if(ESP_OK != esp_wifi_set_max_tx_power(WIFI_MAX_TX_POWER)){
@@ -132,7 +138,12 @@ void wlanMsgClass::send(uint8_t *data, size_t len, IPAddress ip, uint16_t port){
 }
 
 void wlanMsgClass::send(uint8_t *data, size_t len){
-    send(data, len, peerAddr, CYMPLEFACE_SERVER_PORT);
+    if(INADDR_NONE !=unicastAddr){
+        send(data, len, unicastAddr, CYMPLEFACE_SERVER_PORT);
+    }else{
+        send(data, len, brocastAddr, CYMPLEFACE_SERVER_PORT);
+    }
+    
 }
 
 int wlanMsgClass::runFrame(unsigned long currentT){

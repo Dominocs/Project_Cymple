@@ -89,46 +89,64 @@ void serialClass::runFrame(unsigned long currentT){
         return;
     }
     
-    /* serial timeout */
+    /* 检查超时 - 如果超过1秒没有新数据，重置缓冲区 */
     if((currentT - timer) > 1000){
         usSerialRxDataLen = 0;
         usSerialRxDataOffset = 0;
         bRcvSerialHdr = false;
     }
     timer = currentT;
-    usSerialRxDataLen  += Serial.read(acSerialRxBuffer + usSerialRxDataLen, SERIAL_RX_BUFF_SIZE - usSerialRxDataLen);
+    
+    /* 读取可用数据到缓冲区 */
+    int availableBytes = Serial.available();
+    int readBytes = Serial.readBytes(acSerialRxBuffer + usSerialRxDataLen, 
+                                    min(availableBytes, SERIAL_RX_BUFF_SIZE - usSerialRxDataLen));
+    usSerialRxDataLen += readBytes;
+    
+    /* 处理接收到的数据 */
     while(usSerialRxDataLen >= SERIAL_MIN_SIZE){
         if(!bRcvSerialHdr){
             bRcvSerialHdr = getSerialMsgHead();
             if(!bRcvSerialHdr){
                 usSerialRxDataOffset++;
                 usSerialRxDataLen--;
+                /* 如果偏移量过大，移动数据到缓冲区开头 */
+                if(usSerialRxDataOffset > SERIAL_RX_BUFF_SIZE/2 && usSerialRxDataLen > 0){
+                    memmove(acSerialRxBuffer, acSerialRxBuffer + usSerialRxDataOffset, usSerialRxDataLen);
+                    usSerialRxDataOffset = 0;
+                }
                 continue;
             }
         }
+        
         if(bRcvSerialHdr){
-            STREAM_TLV_S *pTmp = (STREAM_TLV_S *)(void *)(acSerialRxBuffer + usSerialRxDataOffset);
+            STREAM_TLV_S *pTmp = (STREAM_TLV_S *)(acSerialRxBuffer + usSerialRxDataOffset);
             int len = pTmp->uiLength + sizeof(STREAM_TLV_S);
-            bRcvSerialHdr = false;
+            
             /* 长度异常 */
             if(len > SERIAL_RX_BUFF_SIZE){
-                usSerialRxDataOffset += sizeof(uint8_t) * 4;
-                usSerialRxDataLen -= sizeof(uint8_t) * 4; /* 向后偏移头标识符 */
+                bRcvSerialHdr = false;
+                usSerialRxDataOffset += sizeof(uint32_t); // 只跳过前缀字段
+                usSerialRxDataLen -= sizeof(uint32_t);
                 continue;
             }
+            /* 数据不完整，等待更多数据 */
+            else if(usSerialRxDataLen < len){
+                break;
+            }
             /* 正常解析 */
-            else if(usSerialRxDataLen >= len){
-                serialMsgCallback(pTmp->uiType, pTmp->uiLength + sizeof(STREAM_TLV_S));
+            else {
+                serialMsgCallback(pTmp->uiType, len);
                 usSerialRxDataLen -= len;
                 usSerialRxDataOffset += len;
-            }else{
-                break;
+                bRcvSerialHdr = false;
             }
         }
     }
-    /* 复制到头部 */
-    if(usSerialRxDataLen > 0){
-        memcpy(acSerialRxBuffer, acSerialRxBuffer + usSerialRxDataOffset, usSerialRxDataLen);
+    
+    /* 如果有剩余数据，移动到缓冲区开头 */
+    if(usSerialRxDataLen > 0 && usSerialRxDataOffset > 0){
+        memmove(acSerialRxBuffer, acSerialRxBuffer + usSerialRxDataOffset, usSerialRxDataLen);
         usSerialRxDataOffset = 0;
     }
 }

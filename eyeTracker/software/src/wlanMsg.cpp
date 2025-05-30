@@ -6,6 +6,7 @@
 #include "wlanMsg.h"
 #include <esp_wifi.h>
 #include "wifiUser.h"
+#include "serialMsg.h"
 
 #define WIFI_MAX_TX_POWER 80
 wlanMsgClass *pwlanMsgObj = NULL;
@@ -37,7 +38,7 @@ static void onPacketCallBack(AsyncUDPPacket packet){
                 eepromApi::write(&pstMsg->ucPosition, OFFSET(EEPROM_DATA_S, ucFlags), sizeof(pstMsg->ucPosition));
                 pCamera->ucFlags = pstMsg->ucPosition;
             }else{
-                Serial.printf("Mismatch: sizeof(MSG_WLAN_PARACONFIG_S):%u, msg len:%d\n", sizeof(MSG_WLAN_POSIOTN_CONFIG_S), msgLen);
+                serial_writelog("Mismatch: sizeof(MSG_WLAN_PARACONFIG_S):%u, msg len:%d\n", sizeof(MSG_WLAN_POSIOTN_CONFIG_S), msgLen);
             }
             break;
         // case MSG_REFRESH_RATE_CFT_E:
@@ -50,12 +51,12 @@ static void onPacketCallBack(AsyncUDPPacket packet){
         //     }
         //     ucFlag2 = flag;
         //     eepromApi::write(&flag, OFFSET(EEPROM_DATA_S, ucFlags2), sizeof(flag));
-        //     Serial.printf("Switch fresh rate: flag2:%d\n", ucFlag2);
+        //     serial_writelog("Switch fresh rate: flag2:%d\n", ucFlag2);
         //     break;
         }
         case MSG_CONFIG_WIFI_E:{
             if(msgLen != sizeof(MSG_WLAN_WIFI_CONFIG_S)){
-                Serial.printf("Sizeof MSG_WLAN_WIFI_CONFIG_S dismatch: rcv: %u, local %u", msgLen, sizeof(MSG_WLAN_WIFI_CONFIG_S));
+                serial_writelog("Sizeof MSG_WLAN_WIFI_CONFIG_S dismatch: rcv: %u, local %u\r\n", msgLen, sizeof(MSG_WLAN_WIFI_CONFIG_S));
             }else{
                 MSG_WLAN_WIFI_CONFIG_S *tmp = (MSG_WLAN_WIFI_CONFIG_S *)pstMsgHdr;
                 tmp->SSID[SSID_LENGTH - 1] = '\0';
@@ -68,7 +69,7 @@ static void onPacketCallBack(AsyncUDPPacket packet){
         }
             
         default:
-            Serial.printf("Invalid msg type%u, msg len:%d\n", pstMsgHdr->uiType, msgLen);
+            serial_writelog("Invalid msg type%u, msg len:%d\n", pstMsgHdr->uiType, msgLen);
             break;
     }
 }
@@ -84,7 +85,7 @@ wlanMsgClass::wlanMsgClass(){
     WiFi.mode(WIFI_STA);
     WiFi.persistent(false);
     // if(ESP_OK != esp_wifi_set_max_tx_power(WIFI_MAX_TX_POWER)){
-    //     Serial.println("Failed to config wifi max tx power.");
+    //     serial_writelog("Failed to config wifi max tx power.");
     // }
     while (!udpClient.listen(CYMPLEFACE_CAM_PORT)) //等待udp监听设置成功
     {
@@ -94,10 +95,11 @@ wlanMsgClass::wlanMsgClass(){
         connect(acSSID, acPassword);
     }
 }
+
 void wlanMsgClass::connect(const char *SSID, const char *password){
     bool ret = false;
     if(0 == SSID[0]){
-        Serial.println("SSID missing");
+        serial_writelog("SSID missing\r\n");
     }
     if(0 != strcmp(SSID, acSSID)){
         ret = true;
@@ -110,14 +112,14 @@ void wlanMsgClass::connect(const char *SSID, const char *password){
         eepromApi::write((void *)password, OFFSET(EEPROM_DATA_S, acPassword), WIFI_PASSWORD_LENGTH);
     }
     if(ret){
-        Serial.printf("Connecting to %s\n", acSSID);
+        serial_writelog("Connecting to %s\n", acSSID);
         networkApi::connect(acSSID, acPassword);
     }
 }
 
 
 void wlanMsgClass::connect(){
-    Serial.printf("Connecting to %s\n", acSSID);
+    serial_writelog("Connecting to %s\n", acSSID);
     networkApi::connect(acSSID, acPassword);
 }
 
@@ -131,7 +133,7 @@ void wlanMsgClass::APMode(){
 
 void wlanMsgClass::send(uint8_t *data, size_t len, IPAddress ip, uint16_t port){
     if(len > CONFIG_TCP_MSS){
-        Serial.printf("wlanMsgClass::send: data too large:%u\n", len);
+        serial_writelog("wlanMsgClass::send: data too large:%u\n", len);
         return;
     }
     udpClient.writeTo(data, len, ip, port);
@@ -149,7 +151,7 @@ void wlanMsgClass::send(uint8_t *data, size_t len){
 int wlanMsgClass::runFrame(unsigned long currentT){
     if(tryConCount > 2){
         if(3 == tryConCount){
-            Serial.println("Wating to config WIFI");
+            serial_writelog("Wating to config WIFI\r\n");
             APMode();
             tryConCount++;
         }
@@ -164,13 +166,13 @@ int wlanMsgClass::runFrame(unsigned long currentT){
     }
     if(bHeartbeatTimeout){
         if(!WiFi.isConnected()){
-            Serial.println("Wlan disconnected");
+            serial_writelog("Wlan disconnected\r\n");
             tryConCount++;
             connect();
             delay(3000);
             return 1;
         }else{
-            Serial.println("Heartbeat timeout");
+            serial_writelog("Heartbeat timeout\r\n");
             delay(1000);
             return 1;
         }

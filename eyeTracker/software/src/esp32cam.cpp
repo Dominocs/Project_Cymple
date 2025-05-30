@@ -4,6 +4,7 @@
 #include "esp32cam.h"
 #include "camCfg.h"
 #include "config.h"
+#include "serialMsg.h"
 #include "wlanMsg.h"
 #include "drv/eeprom.h"
 cameraClass *pCamera = NULL;
@@ -19,10 +20,10 @@ cameraClass::cameraClass(){
     esp_err_t err = esp_camera_init(&config);
     if (err != ESP_OK)
     {
-        Serial.printf("ERROR:%d", err);
+        serial_writelog("ERROR:%d\r\n", err);
         ESP_LOGE(TAG, "Camera Init Failed");
     }else{
-        Serial.println("Camera succeed to init");
+        serial_writelog("Camera succeed to init\r\n");
         sensor_t * s = esp_camera_sensor_get();
         s->set_brightness(s, 2);     // -2 to 2
         s->set_contrast(s, 0);       // -2 to 2
@@ -30,18 +31,18 @@ cameraClass::cameraClass(){
         s->set_special_effect(s, 2); // 0 to 6 (0 - No Effect, 1 - Negative, 2 - Grayscale, 3 - Red Tint, 4 - Green Tint, 5 - Blue Tint, 6 - Sepia)
         s->set_whitebal(s, 1);       // 0 = disable , 1 = enable
         s->set_awb_gain(s, 1);       // 0 = disable , 1 = enable
-        s->set_wb_mode(s, 0);        // 0 to 4 - if awb_gain enabled (0 - Auto, 1 - Sunny, 2 - Cloudy, 3 - Office, 4 - Home)
+        s->set_wb_mode(s, 1);        // 0 to 4 - if awb_gain enabled (0 - Auto, 1 - Sunny, 2 - Cloudy, 3 - Office, 4 - Home)
         s->set_exposure_ctrl(s, 1);  // 0 = disable , 1 = enable
         s->set_aec2(s, 0);           // 0 = disable , 1 = enable
         s->set_ae_level(s, 0);       // -2 to 2
-        s->set_aec_value(s, 400);    // 0 to 1200
+        s->set_aec_value(s, 800);    // 0 to 1200
         s->set_gain_ctrl(s, 1);      // 0 = disable , 1 = enable
         s->set_agc_gain(s, 0);       // 0 to 30
         s->set_gainceiling(s, (gainceiling_t)0);  // 0 to 6
         s->set_bpc(s, 0);            // 0 = disable , 1 = enable
         s->set_wpc(s, 1);            // 0 = disable , 1 = enable
         s->set_raw_gma(s, 1);        // 0 = disable , 1 = enable
-        s->set_lenc(s, 1);           // 0 = disable , 1 = enable
+        s->set_lenc(s, 0);           // 0 = disable , 1 = enable
         s->set_hmirror(s, 0);        // 0 = disable , 1 = enable
         s->set_vflip(s, 0);          // 0 = disable , 1 = enable
         s->set_dcw(s, 1);            // 0 = disable , 1 = enable
@@ -51,13 +52,13 @@ cameraClass::cameraClass(){
 }
 int cameraClass::runFrame(){
     if(!bValid){
-        Serial.println("Camera failed to init");
+        serial_writelog("Camera failed to init\r\n");
         return 1;
     }
     MSG_WLAN_IMAGE_S *pstImgMsg = (MSG_WLAN_IMAGE_S *)aucTxBuffer;
     camera_fb_t *pic = esp_camera_fb_get();
     if(NULL == pic){
-        Serial.println("NULL == pic in cameraClass::runFrame");
+        serial_writelog("NULL == pic in cameraClass::runFrame\r\n");
         return 1;
     }
     size_t imgLen = pic->len;
@@ -69,9 +70,9 @@ int cameraClass::runFrame(){
     pstImgMsg->ucFrameIndex = ucFrameIndex;
     while(imgLen > 0){
         copyLen = min(MAX_DATA_LEN, imgLen);
-        pstImgMsg->tlv.uiLength = sizeof(MSG_WLAN_IMAGE_S) + copyLen;
+        pstImgMsg->tlv.uiLength = sizeof(MSG_WLAN_IMAGE_S) + copyLen - sizeof(TLV_S);
         memcpy(pstImgMsg->aucData, pic->buf + pstImgMsg->uiOffset, copyLen);
-        pwlanMsgObj->send(aucTxBuffer, pstImgMsg->tlv.uiLength);
+        pwlanMsgObj->send(aucTxBuffer, pstImgMsg->tlv.uiLength + sizeof(TLV_S));
         pstImgMsg->uiOffset += copyLen;
         imgLen -= copyLen;
     }

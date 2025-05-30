@@ -1,5 +1,6 @@
 #include "wlanMsg.h"
 #include "wifiUser.h"
+#include "serialMsg.h"
 
 const byte DNS_PORT = 53;                  //设置DNS端口号
 const int webPort = 80;                    //设置Web端口号
@@ -35,14 +36,14 @@ void handleConfigWifi()               //返回http状态
 {
   if (server.hasArg("ssid"))          //判断是否有账号参数
   {
-    Serial.print("got ssid:");
+    serial_writelog("%s\r\n", "got ssid:");
     wifi_ssid = server.arg("ssid");   //获取html表单输入框name名为"ssid"的内容
  
-    Serial.println(wifi_ssid);
+    serial_writelog("%s\r\n",wifi_ssid.c_str());
   } 
   else                                //没有参数
   { 
-    Serial.println("error, not found ssid");
+    serial_writelog("%s\r\n","error, not found ssid");
     server.send(200, "text/html", "<meta charset='UTF-8'>error, not found ssid"); //返回错误页面
     return;
   }
@@ -51,11 +52,11 @@ void handleConfigWifi()               //返回http状态
   {
     Serial.print("got password:");
     wifi_pass = server.arg("password");  //获取html表单输入框name名为"pwd"的内容
-    Serial.println(wifi_pass);
+    serial_writelog("%s\r\n", wifi_pass.c_str());
   } 
   else 
   {
-    Serial.println("error, not found password");
+    serial_writelog("error, not found password\r\n");
     server.send(200, "text/html", "<meta charset='UTF-8'>error, not found password");
     return;
   }
@@ -68,7 +69,7 @@ void handleConfigWifi()               //返回http状态
     pwlanMsgObj->connect(wifi_ssid.c_str(), wifi_pass.c_str());
   } 
   else {
-    Serial.println("提交的配置信息自动连接成功..");
+    serial_writelog("提交的配置信息自动连接成功..\r\n");
   }
 }
  
@@ -88,9 +89,9 @@ void initDNS()
 {
   if (dnsServer.start(DNS_PORT, "*", apIP))   //判断将所有地址映射到esp32的ip上是否成功
   {
-    Serial.println("start dnsserver success.");
+    serial_writelog("start dnsserver success.\r\n");
   } else {
-    Serial.println("start dnsserver failed.");
+    serial_writelog("start dnsserver failed.\r\n");
   }
 }
  
@@ -101,7 +102,7 @@ void initWebServer()
 {
   if (MDNS.begin("esp32"))      //给设备设定域名esp32,完整的域名是esp32.local
   {
-    Serial.println("MDNS responder started");
+    serial_writelog("MDNS responder started\r\n");
   }
   //必须添加第二个参数HTTP_GET，以下面这种格式去写，否则无法强制门户
   server.on("/", HTTP_GET, handleRoot);                      //  当浏览器请求服务器根目录(网站首页)时调用自定义函数handleRoot处理，设置主页回调函数，必须添加第二个参数HTTP_GET，否则无法强制门户
@@ -111,25 +112,25 @@ void initWebServer()
  
   server.begin();                                           //启动TCP SERVER
  
-  Serial.println("WebServer started!");
+  serial_writelog("WebServer started!\r\n");
 }
  
 /*
  * 扫描附近的WiFi，为了显示在配网界面
  */
 bool scanWiFi() {
-  Serial.println("scan start");
-  Serial.println("--------->");
+  serial_writelog("scan start\r\n");
+  serial_writelog("--------->\r\n");
   // 扫描附近WiFi
   int n = WiFi.scanNetworks();
-  Serial.println("scan done");
+  serial_writelog("scan done\r\n");
   if (n == 0) {
-    Serial.println("no networks found");
+    serial_writelog("no networks found\r\n");
     scanNetworksID += "<option>no networks found</option>";
     return false;
   } else {
     Serial.print(n);
-    Serial.println(" networks found");
+    serial_writelog(" networks found\r\n");
     for (int i = 0; i < n; ++i) {
       // Print SSID and RSSI for each network found
       Serial.print(i + 1);
@@ -138,7 +139,7 @@ bool scanWiFi() {
       Serial.print(" (");
       Serial.print(WiFi.RSSI(i));
       Serial.print(")");
-      Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? " " : "*");
+      serial_writelog((WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? " " : "*");
       scanNetworksID += "<option>" + WiFi.SSID(i) + "</option>";
       delay(10);
     }

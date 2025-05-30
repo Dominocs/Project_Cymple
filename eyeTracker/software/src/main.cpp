@@ -11,9 +11,9 @@ void setup() {
   EEPROM.begin(sizeof(EEPROM_DATA_S));
   pserialObj = new serialClass();
   pwlanMsgObj = new wlanMsgClass();
-  Serial.println("CympleEye WLAN Init!");
+  serial_writelog("CympleEye WLAN Init!\r\n");
   pCamera = new cameraClass();
-  Serial.println("CympleEye Camera Init!");
+  serial_writelog("CympleEye Camera Init!\r\n");
   delay(1000);
 }
 

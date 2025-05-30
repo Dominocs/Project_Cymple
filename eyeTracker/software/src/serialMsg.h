@@ -3,22 +3,38 @@
 #include "common.h"
 #include "config.h"
 #define SERIAL_RX_BUFF_SIZE 1024
-enum{
-    SERIAL_MSG_DEVICEINFO_E,
+// 消息类型枚举
+typedef enum {
+    SERIAL_MSG_LOG_E,
+    SERIAL_MSG_REQ_DEVICEINFO_E,
+    SERIAL_MSG_REPLY_DEVICEINFO_E,
     SERIAL_MSG_WIFI_CONFIG_E,
+    SERIAL_MSG_IMAGE_E = 5,
     SERIAL_MSG_MAX_E
-};
+} SERIAL_MSG_TYPE_E;
 
-typedef struct{
-    uint8_t hdr[4];
-    TLV_S tlv;
-}SERIAL_MSG_HDR_S, SERIAL_MSG_CONNECT_S;
 
-typedef struct{
-    SERIAL_MSG_HDR_S stHdr;
-    char acSSID[SSID_LENGTH];
-    char acPassword[WIFI_PASSWORD_LENGTH];
-}SERIAL_MSG_WIFICONFIG_S;
+// TLV结构
+typedef struct {
+    uint32_t uiPrefix;
+    uint16_t uiType;
+    uint16_t uiLength;
+} STREAM_TLV_S;
+
+static inline void set_stream_tlv(STREAM_TLV_S *tlv, uint16_t type, uint16_t length) {
+    // 设置TLV
+    #define STREAM_PREFIX 0xFFDDEDFE
+    tlv->uiPrefix = STREAM_PREFIX;
+    tlv->uiType = type;
+    tlv->uiLength = length;
+}
+
+// WiFi配置消息
+typedef struct {
+    STREAM_TLV_S tlv;
+    char acSSID[32];
+    char acPassword[64];
+} SERIAL_MSG_WIFICONFIG_S;
 
 class serialClass{
 public:
@@ -37,7 +53,7 @@ private:
     }
 };
 
-#define SERIAL_MIN_SIZE sizeof(SERIAL_MSG_HDR_S)
-
+#define SERIAL_MIN_SIZE sizeof(STREAM_TLV_S)
+extern void serial_writelog(const char *format, ...);
 extern serialClass *pserialObj;
 #endif /* IMUMSG_H */

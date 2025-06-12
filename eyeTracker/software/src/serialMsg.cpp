@@ -1,6 +1,9 @@
 #include <WiFi.h>
 #include "serialMsg.h"
 #include "wlanMsg.h"
+#include "drv/eeprom.h"
+#include "esp32cam.h"
+
 #define SERIAL_TIMEOUT 200
 serialClass *pserialObj = NULL;
 #define LOG_BUFF_SIZE 256
@@ -66,7 +69,7 @@ bool serialClass::getSerialMsgHead()
 void serialClass::serialMsgCallback(uint16_t type, uint16_t len){
     switch(type){
         case SERIAL_MSG_REQ_DEVICEINFO_E:
-            serial_writelog("\n\nProject cympleEye\nContributor: Dominocs\nGithub & BiliBili & Vrc: Dominocs\nEmail: 1030487127@qq.com Version:DIY_1_0_0\n");
+            serial_writelog("\n\nProject cympleEye\nContributor: Dominocs\nGithub & BiliBili & Vrc: Dominocs\nEmail: 1030487127@qq.com Version:DIY_1_1_0\n");
             if(WiFi.isConnected()){
                 serial_writelog("Ip address:%s\n", WiFi.localIP().toString().c_str());
             }
@@ -77,6 +80,15 @@ void serialClass::serialMsgCallback(uint16_t type, uint16_t len){
             }else{
                 SERIAL_MSG_WIFICONFIG_S *tmp = (SERIAL_MSG_WIFICONFIG_S *)(acSerialRxBuffer + usSerialRxDataOffset);
                 pwlanMsgObj->connect(tmp->acSSID, tmp->acPassword);
+            }
+            break;
+        case SERIAL_MSG_POSITION_CFG_E:
+            if(len == sizeof(SERIAL_MSG_POSITION_CFG_S)){
+                SERIAL_MSG_POSITION_CFG_S *pstMsg = (SERIAL_MSG_POSITION_CFG_S *)(acSerialRxBuffer + usSerialRxDataOffset);
+                eepromApi::write(&pstMsg->ucPosition, OFFSET(EEPROM_DATA_S, ucFlags), sizeof(pstMsg->ucPosition));
+                pCamera->ucFlags = pstMsg->ucPosition;
+            }else{
+                serial_writelog("Mismatch: sizeof(MSG_WLAN_PARACONFIG_S):%u, msg len:%d\n", sizeof(SERIAL_MSG_POSITION_CFG_S), len);
             }
             break;
         default:

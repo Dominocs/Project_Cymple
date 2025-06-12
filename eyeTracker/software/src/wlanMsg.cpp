@@ -32,28 +32,6 @@ static void onPacketCallBack(AsyncUDPPacket packet){
             bHeartbeatTimeout = false;
             unicastAddr = packet.remoteIP();
             break;
-        case MSG_POSITION_CFG_E:{
-            if(msgLen == sizeof(MSG_WLAN_POSIOTN_CONFIG_S)){
-                MSG_WLAN_POSIOTN_CONFIG_S *pstMsg = (MSG_WLAN_POSIOTN_CONFIG_S *)packet.data();
-                eepromApi::write(&pstMsg->ucPosition, OFFSET(EEPROM_DATA_S, ucFlags), sizeof(pstMsg->ucPosition));
-                pCamera->ucFlags = pstMsg->ucPosition;
-            }else{
-                serial_writelog("Mismatch: sizeof(MSG_WLAN_PARACONFIG_S):%u, msg len:%d\n", sizeof(MSG_WLAN_POSIOTN_CONFIG_S), msgLen);
-            }
-            break;
-        // case MSG_REFRESH_RATE_CFT_E:
-        //     uint8_t flag;
-        //     eepromApi::read(&flag, OFFSET(EEPROM_DATA_S, ucFlags2), sizeof(flag));
-        //     if((flag & FLAG2_FAST_MODE) == 0){
-        //         flag |= FLAG2_FAST_MODE;
-        //     }else{
-        //         flag &= (~FLAG2_FAST_MODE);
-        //     }
-        //     ucFlag2 = flag;
-        //     eepromApi::write(&flag, OFFSET(EEPROM_DATA_S, ucFlags2), sizeof(flag));
-        //     serial_writelog("Switch fresh rate: flag2:%d\n", ucFlag2);
-        //     break;
-        }
         case MSG_CONFIG_WIFI_E:{
             if(msgLen != sizeof(MSG_WLAN_WIFI_CONFIG_S)){
                 serial_writelog("Sizeof MSG_WLAN_WIFI_CONFIG_S dismatch: rcv: %u, local %u\r\n", msgLen, sizeof(MSG_WLAN_WIFI_CONFIG_S));
@@ -66,6 +44,7 @@ static void onPacketCallBack(AsyncUDPPacket packet){
                 pwlanMsgObj->tryConCount = 0;
                 pwlanMsgObj->connect(tmp->SSID, tmp->password);
             }
+            break;
         }
             
         default:

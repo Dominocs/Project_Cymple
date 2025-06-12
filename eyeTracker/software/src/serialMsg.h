@@ -10,6 +10,7 @@ typedef enum {
     SERIAL_MSG_REPLY_DEVICEINFO_E,
     SERIAL_MSG_WIFI_CONFIG_E,
     SERIAL_MSG_IMAGE_E = 5,
+    SERIAL_MSG_POSITION_CFG_E,
     SERIAL_MSG_MAX_E
 } SERIAL_MSG_TYPE_E;
 
@@ -35,6 +36,12 @@ typedef struct {
     char acSSID[32];
     char acPassword[64];
 } SERIAL_MSG_WIFICONFIG_S;
+
+typedef struct {
+    STREAM_TLV_S tlv;
+    uint8_t ucPosition;
+    int8_t reserved[3];
+}SERIAL_MSG_POSITION_CFG_S;
 
 class serialClass{
 public:

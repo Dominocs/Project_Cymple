@@ -27,11 +27,6 @@ typedef struct {
 
 typedef struct{
     TLV_S tlv;
-    uint8_t ucPosition;
-}MSG_WLAN_POSIOTN_CONFIG_S;
-
-typedef struct{
-    TLV_S tlv;
     char SSID[SSID_LENGTH];
     char password[WIFI_PASSWORD_LENGTH];
 }MSG_WLAN_WIFI_CONFIG_S;

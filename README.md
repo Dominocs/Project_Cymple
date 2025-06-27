@@ -15,8 +15,6 @@ Discord：https://discord.gg/3epvRA2V
 
 面捕教程： 【【DIY】cymple项目更新：不到70元制作一个vrchat面捕设备！】 https://www.bilibili.com/video/BV1G2421N7JD/
 
-在线刷写固件:https://hiahia1234.github.io/ 由hiahia1234提供
-
 初次食用教程：
 打开所需功能
 ![image](https://github.com/Dominocs/Project_Cymple/blob/main/tutorial/step1.png)

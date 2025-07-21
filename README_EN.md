@@ -4,7 +4,9 @@ Low-cost, DIY, open-source VR accessories, compatible with VRChat, more function
 Click Star to get the latest update progress at any time, and report bugs through Github.
 
 DIY Tutorial: https://gijnpa4vrs.feishu.cn/docx/Gbi3dG388oLnKBxsxMucrQQPnKc?from=from_copylink
+
 Mouth Tracking Tutorial: https://gijnpa4vrs.feishu.cn/docx/Y3jid5zCHoOjY0xnxTCcyAjQnog?from=from_copylink
+
 Eye Tracking Tutorial: https://gijnpa4vrs.feishu.cn/docx/MAHudj60PoafqOxgaoJc3D4unzd?from=from_copylink
 
 Discord：https://discord.gg/PZnVBDxJnJ

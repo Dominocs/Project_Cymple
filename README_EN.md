@@ -3,7 +3,13 @@
 Low-cost, DIY, open-source VR accessories, compatible with VRChat, more functions to be updated. 
 Click Star to get the latest update progress at any time, and report bugs through Github.
 
-Discord：https://discord.gg/3epvRA2V
+DIY Tutorial: https://gijnpa4vrs.feishu.cn/docx/Gbi3dG388oLnKBxsxMucrQQPnKc?from=from_copylink
+
+Mouth Tracking Tutorial: https://gijnpa4vrs.feishu.cn/docx/Y3jid5zCHoOjY0xnxTCcyAjQnog?from=from_copylink
+
+Eye Tracking Tutorial: https://gijnpa4vrs.feishu.cn/docx/MAHudj60PoafqOxgaoJc3D4unzd?from=from_copylink
+
+Discord：https://discord.gg/PZnVBDxJnJ
 
 Video introduction: 
 【DIY】cymple eyetracker | Low-cost, open-source eye tracking devices https://youtu.be/nN_c1wu9-L0?si=0wT6pQjnQvis6rJY

@@ -1,0 +1,7 @@
+{
+	"alwaysActivate": false,
+	"name" : "cymple",
+	"directory" : "",
+	"resourceOnly" : false,
+	"hmd_presence" : []
+}

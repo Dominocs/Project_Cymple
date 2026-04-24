@@ -31,5 +31,5 @@ enum{
     TRANSMIT_MODE_MAX_E,
 };
 extern uint8_t g_transmitMode;
-#define VERSION_STR "DIY_1_3_3"
+#define VERSION_STR "DIY_1_4_0"
 #endif

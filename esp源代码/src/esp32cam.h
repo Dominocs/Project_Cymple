@@ -9,6 +9,8 @@ enum{
   FLAG_MOUTH_E,
   FLAG_MAX_E
 };
+uint8_t sanitizeDeviceFlag(uint8_t ucFlag);
+void updateDeviceFlag(uint8_t ucFlag);
 class cameraClass
 {
 public:

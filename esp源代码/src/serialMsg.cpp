@@ -86,8 +86,7 @@ void serialClass::serialMsgCallback(uint16_t type, uint16_t len){
         case SERIAL_MSG_POSITION_CFG_E:
             if(len == sizeof(SERIAL_MSG_POSITION_CFG_S)){
                 SERIAL_MSG_POSITION_CFG_S *pstMsg = (SERIAL_MSG_POSITION_CFG_S *)(acSerialRxBuffer + usSerialRxDataOffset);
-                eepromApi::write(&pstMsg->ucPosition, OFFSET(EEPROM_DATA_S, ucFlags), sizeof(pstMsg->ucPosition));
-                pCamera->ucFlags = pstMsg->ucPosition;
+                updateDeviceFlag(pstMsg->ucPosition);
             }else{
                 serial_writelog("Mismatch: sizeof(MSG_WLAN_PARACONFIG_S):%u, msg len:%d\n", sizeof(SERIAL_MSG_POSITION_CFG_S), len);
             }

@@ -10,10 +10,28 @@
 cameraClass *pCamera = NULL;
 static const char *TAG = "cympleFace";
 static const size_t MAX_DATA_LEN = CONFIG_TCP_MSS - sizeof(MSG_WLAN_IMAGE_S);
+
+uint8_t sanitizeDeviceFlag(uint8_t ucFlag){
+    if(ucFlag >= FLAG_MAX_E){
+        return FLAG_LEFT_EYE_E;
+    }
+    return ucFlag;
+}
+
+void updateDeviceFlag(uint8_t ucFlag){
+    ucFlag = sanitizeDeviceFlag(ucFlag);
+    eepromApi::write(&ucFlag, OFFSET(EEPROM_DATA_S, ucFlags), sizeof(ucFlag));
+    if(pCamera){
+        pCamera->ucFlags = ucFlag;
+    }
+}
+
 cameraClass::cameraClass(){
-    eepromApi::read(&ucFlags, OFFSET(EEPROM_DATA_S, ucFlags), sizeof(ucFlags));
-    if(ucFlags >= FLAG_MAX_E){
-        ucFlags = FLAG_LEFT_EYE_E;
+    uint8_t storedFlag = FLAG_LEFT_EYE_E;
+    eepromApi::read(&storedFlag, OFFSET(EEPROM_DATA_S, ucFlags), sizeof(storedFlag));
+    ucFlags = sanitizeDeviceFlag(storedFlag);
+    if(ucFlags != storedFlag){
+        eepromApi::write(&ucFlags, OFFSET(EEPROM_DATA_S, ucFlags), sizeof(ucFlags));
     }
     memset(aucTxBuffer, 0, sizeof(aucTxBuffer));
     camera_config_t config = camconfig;

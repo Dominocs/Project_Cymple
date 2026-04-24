@@ -1,6 +1,7 @@
 #include "wlanMsg.h"
 #include "wifiUser.h"
 #include "serialMsg.h"
+#include "esp32cam.h"
 
 const byte DNS_PORT = 53;                  //设置DNS端口号
 const int webPort = 80;                    //设置Web端口号
@@ -10,22 +11,88 @@ String scanNetworksID = "";                //用于储存扫描到的WiFi ID
  
 String wifi_ssid = "";                     //暂时存储wifi账号密码
 String wifi_pass = "";                     //暂时存储wifi账号密
+
+static const char *getDeviceFlagLabel(uint8_t deviceFlag)
+{
+  switch (sanitizeDeviceFlag(deviceFlag)) {
+    case FLAG_LEFT_EYE_E:
+      return "Left Eye";
+    case FLAG_RIGHT_EYE_E:
+      return "Right Eye";
+    case FLAG_MOUTH_E:
+      return "Mouth";
+    default:
+      return "Left Eye";
+  }
+}
+
+static void appendDeviceFlagOption(String &html, uint8_t optionValue, const char *label, uint8_t currentFlag)
+{
+  html += "<option value=\"";
+  html += String(optionValue);
+  html += "\"";
+  if (currentFlag == optionValue) {
+    html += " selected";
+  }
+  html += ">";
+  html += label;
+  html += "</option>";
+}
+
+static String buildDeviceFlagHtml()
+{
+  uint8_t currentFlag = FLAG_LEFT_EYE_E;
+  if (NULL != pCamera) {
+    currentFlag = sanitizeDeviceFlag(pCamera->ucFlags);
+  }
+  String html = "<select name=\"deviceFlag\" id=\"device_flag\" style=\"height:44px;font-size:16px;width:100%;margin-bottom:10px;background:#fff;border:1px solid #d9d9d9;border-top:1px solid silver;padding:0 8px;box-sizing:border-box;-moz-box-sizing:border-box;border-radius:10px\">";
+  appendDeviceFlagOption(html, FLAG_LEFT_EYE_E, "Left Eye", currentFlag);
+  appendDeviceFlagOption(html, FLAG_RIGHT_EYE_E, "Right Eye", currentFlag);
+  appendDeviceFlagOption(html, FLAG_MOUTH_E, "Mouth", currentFlag);
+  html += "</select>";
+  return html;
+}
+
+static bool parseDeviceFlagArg(const String &value, uint8_t &deviceFlag)
+{
+  if (0 == value.length()) {
+    return false;
+  }
+  for (size_t index = 0; index < value.length(); ++index) {
+    char currentChar = value.charAt(index);
+    if ((currentChar < '0') || (currentChar > '9')) {
+      return false;
+    }
+  }
+  long parsedValue = value.toInt();
+  if ((parsedValue < 0) || (parsedValue >= FLAG_MAX_E)) {
+    return false;
+  }
+  deviceFlag = (uint8_t)parsedValue;
+  return true;
+}
  
 DNSServer dnsServer;                       //创建dnsServer实例
 WebServer server(webPort);                 //开启web服务, 创建TCP SERVER,参数: 端口号,最大连接数
  
 // 上下两段HTML代码
 String ROOT_HTML_1 = "<!DOCTYPE html><html><head>  <meta charset=\"UTF-8\">  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">  <meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />  <title>登录页面</title>  <style>   #content,.login,.login-card a,.login-card h1,.login-help{text-align:center}body,html{margin:0;padding:0;width:100%;height:100%;display:table}#content{font-family:\'Source Sans Pro\',sans-serif;-webkit-background-size:cover;-moz-background-size:cover;-o-background-size:cover;background-size:cover;display:table-cell;vertical-align:middle}.login-card{padding:40px;width:274px;background-color:#F7F7F7;margin:0 auto 10px;border-radius:20px;box-shadow:8px 8px 15px rgba(0,0,0,.3);overflow:hidden}.login-card h1{font-weight:400;font-size:2.3em;color:#1383c6}.login-card h1 span{color:#f26721}.login-card img{width:70%;height:70%}.login-card input[type=submit]{width:100%;display:block;margin-bottom:10px;position:relative}.login-card input[type=text],input[type=password]{height:44px;font-size:16px;width:100%;margin-bottom:10px;-webkit-appearance:none;background:#fff;border:1px solid #d9d9d9;border-top:1px solid silver;padding:0 8px;box-sizing:border-box;-moz-box-sizing:border-box}.login-card input[type=text]:hover,input[type=password]:hover{border:1px solid #b9b9b9;border-top:1px solid #a0a0a0;-moz-box-shadow:inset 0 1px 2px rgba(0,0,0,.1);-webkit-box-shadow:inset 0 1px 2px rgba(0,0,0,.1);box-shadow:inset 0 1px 2px rgba(0,0,0,.1)}.login{font-size:14px;font-family:Arial,sans-serif;font-weight:700;height:36px;padding:0 8px}.login-submit{-webkit-appearance:none;-moz-appearance:none;appearance:none;border:0;color:#fff;text-shadow:0 1px rgba(0,0,0,.1);background-color:#4d90fe}.login-submit:disabled{opacity:.6}.login-submit:hover{border:0;text-shadow:0 1px rgba(0,0,0,.3);background-color:#357ae8}.login-card a{text-decoration:none;color:#666;font-weight:400;display:inline-block;opacity:.6;transition:opacity ease .5s}.login-card a:hover{opacity:1}.login-help{width:100%;font-size:12px}.list{list-style-type:none;padding:0}.list__item{margin:0 0 .7rem;padding:0}label{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;text-align:left;font-size:14px;}input[type=checkbox]{-webkit-box-flex:0;-webkit-flex:none;-ms-flex:none;flex:none;margin-right:10px;float:left}.error{font-size:14px;font-family:Arial,sans-serif;font-weight:700;height:25px;padding:0 8px;padding-top: 10px; -webkit-appearance:none;-moz-appearance:none;appearance:none;border:0;color:#fff;text-shadow:0 1px rgba(0,0,0,.1);background-color:#ff1215}@media screen and (max-width:450px){.login-card{width:70%!important}.login-card img{width:30%;height:30%}}  </style></head><body style=\"background-color: #e5e9f2\"><div id=\"content\"> <form name=\'input\' action=\'/configwifi\' method=\'POST\'>  <div class=\"login-card\">    <h1>WiFi登录</h1>   <form name=\"login_form\" method=\"post\" action=\"$PORTAL_ACTION$\">   <input type=\"text\" name=\"ssid\" placeholder=\"请输入 WiFi 名称\" id=\"auth_user\" list = \"data-list\"; style=\"border-radius: 10px\">    <datalist id = \"data-list\">";
-String ROOT_HTML_2 = "<input type=\"password\" name=\"password\" placeholder=\"请输入 WiFi 密码\" id=\"auth_pass\"; style=\"border-radius: 10px\">      <div class=\"login-help\">        <ul class=\"list\">          <li class=\"list__item\">          </li>        </ul>      </div>   <input type=\"submit\" class=\"login login-submit\" value=\"确 定 连 接\" id=\"login\"; disabled; style=\"border-radius: 15px\"  >    </form> <!-- <form name=\'input\' action=\'/English\' method=\'POST\'>    <input type=\"submit\" class=\"login login-submit\" value=\"English\" id=\"login\"; disabled; style=\"border-radius: 15px\"  >    </form> --></body></html>";
+String ROOT_HTML_2 = "<input type=\"password\" name=\"password\" placeholder=\"请输入 WiFi 密码\" id=\"auth_pass\"; style=\"border-radius: 10px\">";
+String ROOT_HTML_3 = "      <div class=\"login-help\">        <ul class=\"list\">          <li class=\"list__item\">          </li>        </ul>      </div>   <input type=\"submit\" class=\"login login-submit\" value=\"确 定 连 接\" id=\"login\"; disabled; style=\"border-radius: 15px\"  >    </form> <!-- <form name=\'input\' action=\'/English\' method=\'POST\'>    <input type=\"submit\" class=\"login login-submit\" value=\"English\" id=\"login\"; disabled; style=\"border-radius: 15px\"  >    </form> --></body></html>";
+
+static String buildRootHtml()
+{
+  return ROOT_HTML_1 + scanNetworksID + ROOT_HTML_2 + buildDeviceFlagHtml() + ROOT_HTML_3;
+}
 /*
  * 处理网站根目录的访问请求
  */
 void handleRoot() 
 {
   if (server.hasArg("selectSSID")) {
-    server.send(200, "text/html", ROOT_HTML_1 + scanNetworksID + ROOT_HTML_2);   //scanNetWprksID是扫描到的wifi
+    server.send(200, "text/html", buildRootHtml());   //scanNetWprksID是扫描到的wifi
   } else {
-    server.send(200, "text/html", ROOT_HTML_1 + scanNetworksID + ROOT_HTML_2);   
+    server.send(200, "text/html", buildRootHtml());   
   }
 }
  
@@ -34,6 +101,10 @@ void handleRoot()
  */
 void handleConfigWifi()               //返回http状态
 {
+  uint8_t deviceFlag = FLAG_LEFT_EYE_E;
+  if (NULL != pCamera) {
+    deviceFlag = sanitizeDeviceFlag(pCamera->ucFlags);
+  }
   if (server.hasArg("ssid"))          //判断是否有账号参数
   {
     serial_writelog("%s\r\n", "got ssid:");
@@ -60,7 +131,20 @@ void handleConfigWifi()               //返回http状态
     server.send(200, "text/html", "<meta charset='UTF-8'>error, not found password");
     return;
   }
-  server.send(200, "text/html", "<meta charset='UTF-8'>SSID: " + wifi_ssid + "<br />password:" + wifi_pass + "<br />已取得WiFi信息,正在尝试连接,请手动关闭此页面。"); //返回保存成功页面
+  if (server.hasArg("deviceFlag")) {
+    String deviceFlagArg = server.arg("deviceFlag");
+    uint8_t parsedDeviceFlag = deviceFlag;
+    if (parseDeviceFlagArg(deviceFlagArg, parsedDeviceFlag)) {
+      deviceFlag = parsedDeviceFlag;
+    } else {
+      serial_writelog("invalid deviceFlag:%s\r\n", deviceFlagArg.c_str());
+    }
+  } else {
+    serial_writelog("deviceFlag missing, keep current\r\n");
+  }
+  updateDeviceFlag(deviceFlag);
+  serial_writelog("device flag:%u\r\n", deviceFlag);
+  server.send(200, "text/html", "<meta charset='UTF-8'>SSID: " + wifi_ssid + "<br />password:" + wifi_pass + "<br />device type:" + String(getDeviceFlagLabel(deviceFlag)) + "<br />已取得WiFi信息,正在尝试连接,请手动关闭此页面。"); //返回保存成功页面
   WiFi.softAPdisconnect(true);     //参数设置为true，设备将直接关闭接入点模式，即关闭设备所建立的WiFi网络。
   server.close();                  //关闭web服务
  
@@ -121,12 +205,14 @@ void initWebServer()
 bool scanWiFi() {
   serial_writelog("scan start\r\n");
   serial_writelog("--------->\r\n");
+  scanNetworksID = "";
   // 扫描附近WiFi
   int n = WiFi.scanNetworks();
   serial_writelog("scan done\r\n");
   if (n == 0) {
     serial_writelog("no networks found\r\n");
     scanNetworksID += "<option>no networks found</option>";
+    scanNetworksID += "</datalist>";
     return false;
   } else {
     Serial.print(n);

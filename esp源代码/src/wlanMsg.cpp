@@ -72,7 +72,7 @@ void wlanMsgClass::connect(const char *SSID, const char *password){
         strncpy(acPassword, password, WIFI_PASSWORD_LENGTH);
         eepromApi::write((void *)password, OFFSET(EEPROM_DATA_S, acPassword), WIFI_PASSWORD_LENGTH);
     }
-    if(ret){
+    if((ret || !WiFi.isConnected()) && (0 != acSSID[0])){
         serial_writelog("Connecting to %s\n", acSSID);
         networkApi::connect(acSSID, acPassword);
     }

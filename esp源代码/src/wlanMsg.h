@@ -29,14 +29,26 @@ typedef struct {
 }MSG_WLAN_IMAGE_S;
 
 typedef struct {
+    // tlv头部，uiType为MSG_IMAGE_V2_E，uiLength总长度(包含该头部)
     TLV_S tlv;
+    // 偏移
     uint16_t uiOffset;
+    // jpg图片总长度
     uint16_t uiTotalLen;
+    // 当前包总长度（包含该头部）
     uint16_t uiDataLen;
+    // 0 为左眼，1为右眼，2为单目
     uint8_t ucDeviceFlag;
+    // 帧自增索引，每发送一帧图像加1
     uint8_t ucFrameIndex;
+    // JPG图像数据
     uint8_t aucData[0];
 }MSG_WLAN_IMAGE_V2_S;
+
+// 如果是在电脑端编程，可以将图像resize到合适的大小或者压缩到整个包小于一个udp报文大小（65535），
+// 无需手动分片（uiOffset == 0, uiTotalLen == uiDataLen）就可以直接发送
+// ESP由于强制使用TCP MTU为1460，所以需要手动分片
+
 
 typedef struct{
     TLV_S tlv;
